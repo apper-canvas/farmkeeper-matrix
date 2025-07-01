@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { toast } from "react-toastify";
 import { CSVLink } from "react-csv";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/SearchBar";
@@ -515,14 +515,15 @@ switch (dateRange) {
     // Date range info
     doc.setFontSize(12);
     let dateInfo = '';
-    switch (dateRange) {
+switch (dateRange) {
       case 'thisMonth':
         dateInfo = `This Month (${format(startOfMonth(new Date()), 'MMM yyyy')})`;
         break;
-      case 'lastMonth':
+      case 'lastMonth': {
         const lastMonth = subMonths(new Date(), 1);
         dateInfo = `Last Month (${format(lastMonth, 'MMM yyyy')})`;
         break;
+      }
       case 'thisYear':
         dateInfo = `This Year (${new Date().getFullYear()})`;
         break;
