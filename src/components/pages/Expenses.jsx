@@ -455,8 +455,8 @@ switch (dateRange) {
           const expenseDate = new Date(expense.date);
           return expenseDate >= startOfMonth(now) && expenseDate <= endOfMonth(now);
         });
-        break;
-      }
+}
+      
       case 'lastMonth': {
         const lastMonth = subMonths(now, 1);
         filtered = expenses.filter(expense => {
@@ -465,6 +465,7 @@ switch (dateRange) {
         });
         break;
       }
+      
       case 'thisYear': {
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
@@ -472,6 +473,7 @@ switch (dateRange) {
         });
         break;
       }
+      
       case 'custom': {
         if (customStartDate && customEndDate) {
           const start = new Date(customStartDate);
@@ -483,8 +485,6 @@ switch (dateRange) {
         }
         break;
       }
-      default: // 'all'
-        break;
     }
 
     return filtered;
