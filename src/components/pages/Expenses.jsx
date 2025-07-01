@@ -9,6 +9,9 @@ import { expenseService } from '@/services/api/expenseService';
 import { farmService } from '@/services/api/farmService';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { toast } from 'react-toastify';
+import { CSVLink } from 'react-csv';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -18,7 +21,8 @@ const Expenses = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterFarm, setFilterFarm] = useState('all');
-  const [showForm, setShowForm] = useState(false);
+const [showForm, setShowForm] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [formData, setFormData] = useState({
     farmId: '',
     category: 'seeds',
@@ -145,19 +149,27 @@ const Expenses = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+{/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 font-display">Expenses</h1>
           <p className="text-gray-600 mt-1">Track and manage your farm-related expenses</p>
         </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          icon="Plus"
-          className="mt-4 sm:mt-0"
-        >
-          Add Expense
-        </Button>
+        <div className="flex space-x-3 mt-4 sm:mt-0">
+          <Button
+            onClick={() => setShowExportModal(true)}
+            icon="Download"
+            variant="outline"
+          >
+            Export
+          </Button>
+          <Button
+            onClick={() => setShowForm(true)}
+            icon="Plus"
+          >
+            Add Expense
+          </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -337,7 +349,16 @@ const Expenses = () => {
           </form>
         </div>
       )}
-
+{/* Export Modal */}
+      {showExportModal && (
+        <ExportModal
+          expenses={filteredExpenses}
+          farms={farms}
+          onClose={() => setShowExportModal(false)}
+          getCategoryConfig={getCategoryConfig}
+          getFarmName={getFarmName}
+        />
+      )}
       {/* Expenses List */}
       {filteredExpenses.length > 0 ? (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -412,6 +433,328 @@ const Expenses = () => {
           onAction={() => setShowForm(true)}
         />
       )}
+</div>
+  );
+};
+
+// Export Modal Component
+const ExportModal = ({ expenses, farms, onClose, getCategoryConfig, getFarmName }) => {
+  const [exportFormat, setExportFormat] = useState('csv');
+  const [dateRange, setDateRange] = useState('all');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Filter expenses based on date range
+  const getFilteredExpenses = () => {
+    let filtered = [...expenses];
+    const now = new Date();
+
+    switch (dateRange) {
+      case 'thisMonth':
+        filtered = expenses.filter(expense => {
+          const expenseDate = new Date(expense.date);
+          return expenseDate >= startOfMonth(now) && expenseDate <= endOfMonth(now);
+        });
+        break;
+      case 'lastMonth':
+        const lastMonth = subMonths(now, 1);
+        filtered = expenses.filter(expense => {
+          const expenseDate = new Date(expense.date);
+          return expenseDate >= startOfMonth(lastMonth) && expenseDate <= endOfMonth(lastMonth);
+        });
+        break;
+      case 'thisYear':
+        filtered = expenses.filter(expense => {
+          const expenseDate = new Date(expense.date);
+          return expenseDate.getFullYear() === now.getFullYear();
+        });
+        break;
+      case 'custom':
+        if (customStartDate && customEndDate) {
+          const start = new Date(customStartDate);
+          const end = new Date(customEndDate);
+          filtered = expenses.filter(expense => {
+            const expenseDate = new Date(expense.date);
+            return expenseDate >= start && expenseDate <= end;
+          });
+        }
+        break;
+      default: // 'all'
+        break;
+    }
+
+    return filtered;
+  };
+
+  // Prepare CSV data
+  const prepareCSVData = () => {
+    const filtered = getFilteredExpenses();
+    return filtered.map(expense => ({
+      'Date': format(new Date(expense.date), 'yyyy-MM-dd'),
+      'Description': expense.description,
+      'Farm': getFarmName(expense.farmId),
+      'Category': getCategoryConfig(expense.category).label,
+      'Amount': expense.amount
+    }));
+  };
+
+  // Generate PDF
+  const generatePDF = () => {
+    const filtered = getFilteredExpenses();
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(20);
+    doc.text('Expense Report', 20, 20);
+    
+    // Date range info
+    doc.setFontSize(12);
+    let dateInfo = '';
+    switch (dateRange) {
+      case 'thisMonth':
+        dateInfo = `This Month (${format(startOfMonth(new Date()), 'MMM yyyy')})`;
+        break;
+      case 'lastMonth':
+        const lastMonth = subMonths(new Date(), 1);
+        dateInfo = `Last Month (${format(lastMonth, 'MMM yyyy')})`;
+        break;
+      case 'thisYear':
+        dateInfo = `This Year (${new Date().getFullYear()})`;
+        break;
+      case 'custom':
+        if (customStartDate && customEndDate) {
+          dateInfo = `${format(new Date(customStartDate), 'MMM d, yyyy')} - ${format(new Date(customEndDate), 'MMM d, yyyy')}`;
+        }
+        break;
+      default:
+        dateInfo = 'All Time';
+    }
+    doc.text(`Period: ${dateInfo}`, 20, 30);
+    
+    // Summary
+    const total = filtered.reduce((sum, expense) => sum + expense.amount, 0);
+    doc.text(`Total Expenses: $${total.toLocaleString()}`, 20, 40);
+    doc.text(`Number of Entries: ${filtered.length}`, 20, 50);
+    
+    // Table data
+    const tableData = filtered.map(expense => [
+      format(new Date(expense.date), 'MMM d, yyyy'),
+      expense.description,
+      getFarmName(expense.farmId),
+      getCategoryConfig(expense.category).label,
+      `$${expense.amount.toLocaleString()}`
+    ]);
+    
+    // Generate table
+    doc.autoTable({
+      head: [['Date', 'Description', 'Farm', 'Category', 'Amount']],
+      body: tableData,
+      startY: 60,
+      styles: {
+        fontSize: 10,
+        cellPadding: 3
+      },
+      headStyles: {
+        fillColor: [59, 130, 246],
+        textColor: 255
+      },
+      alternateRowStyles: {
+        fillColor: [249, 250, 251]
+      },
+      columnStyles: {
+        4: { halign: 'right' } // Right align amount column
+      }
+    });
+    
+    return doc;
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    
+    try {
+      const filtered = getFilteredExpenses();
+      
+      if (filtered.length === 0) {
+        toast.warning('No expenses found for the selected date range');
+        setIsExporting(false);
+        return;
+      }
+
+      if (exportFormat === 'pdf') {
+        const doc = generatePDF();
+        const fileName = `expenses-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+        doc.save(fileName);
+        toast.success('PDF report exported successfully!');
+      } else {
+        // CSV export will be handled by CSVLink component
+        toast.success('CSV report exported successfully!');
+      }
+      
+      // Small delay to show the export process
+      setTimeout(() => {
+        setIsExporting(false);
+        onClose();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export report');
+      setIsExporting(false);
+    }
+  };
+
+  const csvData = prepareCSVData();
+  const csvFilename = `expenses-report-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Export Expense Report</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+          >
+            <ApperIcon name="X" className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Export Format */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Export Format
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setExportFormat('csv')}
+                className={`p-3 border-2 rounded-lg text-center transition-colors ${
+                  exportFormat === 'csv'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <ApperIcon name="FileText" className="w-5 h-5 mx-auto mb-1" />
+                <div className="text-sm font-medium">CSV</div>
+              </button>
+              <button
+                onClick={() => setExportFormat('pdf')}
+                className={`p-3 border-2 rounded-lg text-center transition-colors ${
+                  exportFormat === 'pdf'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <ApperIcon name="FileDown" className="w-5 h-5 mx-auto mb-1" />
+                <div className="text-sm font-medium">PDF</div>
+              </button>
+            </div>
+          </div>
+
+          {/* Date Range */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date Range
+            </label>
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              <option value="all">All Time</option>
+              <option value="thisMonth">This Month</option>
+              <option value="lastMonth">Last Month</option>
+              <option value="thisYear">This Year</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+
+          {/* Custom Date Range */}
+          {dateRange === 'custom' && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Export Summary */}
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="text-sm text-gray-600">
+              <div>Expenses to export: <span className="font-medium text-gray-900">{getFilteredExpenses().length}</span></div>
+              <div>Total amount: <span className="font-medium text-gray-900">${getFilteredExpenses().reduce((sum, expense) => sum + expense.amount, 0).toLocaleString()}</span></div>
+            </div>
+          </div>
+
+          {/* Export Button */}
+          <div className="flex space-x-3 pt-2">
+            {exportFormat === 'csv' ? (
+              <CSVLink
+                data={csvData}
+                filename={csvFilename}
+                onClick={() => {
+                  if (csvData.length === 0) {
+                    toast.warning('No expenses found for the selected date range');
+                    return false;
+                  }
+                  handleExport();
+                  return true;
+                }}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {isExporting ? (
+                  <>
+                    <ApperIcon name="Loader2" className="w-4 h-4 mr-2 animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <ApperIcon name="Download" className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </>
+                )}
+              </CSVLink>
+            ) : (
+              <Button
+                onClick={handleExport}
+                disabled={isExporting}
+                className="flex-1"
+                icon={isExporting ? "Loader2" : "Download"}
+              >
+                {isExporting ? 'Exporting...' : 'Export PDF'}
+              </Button>
+            )}
+            <Button
+              onClick={onClose}
+              variant="outline"
+              disabled={isExporting}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
