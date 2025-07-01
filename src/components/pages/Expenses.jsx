@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import Button from '@/components/atoms/Button';
-import SearchBar from '@/components/molecules/SearchBar';
-import Loading from '@/components/ui/Loading';
-import Error from '@/components/ui/Error';
-import Empty from '@/components/ui/Empty';
-import ApperIcon from '@/components/ApperIcon';
-import { expenseService } from '@/services/api/expenseService';
-import { farmService } from '@/services/api/farmService';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { toast } from 'react-toastify';
-import { CSVLink } from 'react-csv';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import React, { useEffect, useState } from "react";
+import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
+import { toast } from "react-toastify";
+import { CSVLink } from "react-csv";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import ApperIcon from "@/components/ApperIcon";
+import Farms from "@/components/pages/Farms";
+import Select from "@/components/atoms/Select";
+import Button from "@/components/atoms/Button";
+import SearchBar from "@/components/molecules/SearchBar";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
+import { farmService } from "@/services/api/farmService";
+import { expenseService } from "@/services/api/expenseService";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -451,13 +453,14 @@ const ExportModal = ({ expenses, farms, onClose, getCategoryConfig, getFarmName 
     const now = new Date();
 
     switch (dateRange) {
-      case 'thisMonth':
+case 'thisMonth': {
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
           return expenseDate >= startOfMonth(now) && expenseDate <= endOfMonth(now);
         });
         break;
-case 'lastMonth': {
+      }
+      case 'lastMonth': {
         const lastMonth = subMonths(now, 1);
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
@@ -465,13 +468,14 @@ case 'lastMonth': {
         });
         break;
       }
-      case 'thisYear':
+      case 'thisYear': {
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
           return expenseDate.getFullYear() === now.getFullYear();
         });
         break;
-      case 'custom':
+      }
+      case 'custom': {
         if (customStartDate && customEndDate) {
           const start = new Date(customStartDate);
           const end = new Date(customEndDate);
@@ -480,7 +484,8 @@ case 'lastMonth': {
             return expenseDate >= start && expenseDate <= end;
           });
         }
-        break;
+break;
+      }
       default: // 'all'
         break;
     }
