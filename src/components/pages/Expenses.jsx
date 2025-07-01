@@ -457,13 +457,14 @@ const ExportModal = ({ expenses, farms, onClose, getCategoryConfig, getFarmName 
           return expenseDate >= startOfMonth(now) && expenseDate <= endOfMonth(now);
         });
         break;
-      case 'lastMonth':
+case 'lastMonth': {
         const lastMonth = subMonths(now, 1);
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
           return expenseDate >= startOfMonth(lastMonth) && expenseDate <= endOfMonth(lastMonth);
         });
         break;
+      }
       case 'thisYear':
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
