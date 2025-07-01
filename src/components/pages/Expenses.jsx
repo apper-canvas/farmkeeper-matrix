@@ -5,8 +5,6 @@ import { CSVLink } from "react-csv";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import ApperIcon from "@/components/ApperIcon";
-import Farms from "@/components/pages/Farms";
-import Select from "@/components/atoms/Select";
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/SearchBar";
 import Error from "@/components/ui/Error";
@@ -121,14 +119,14 @@ const [showForm, setShowForm] = useState(false);
     return expenseCategories.find(cat => cat.value === category) || expenseCategories[0];
   };
 
-  const filteredExpenses = expenses.filter(expense => {
-    const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         getFarmName(expense.farmId).toLowerCase().includes(searchTerm.toLowerCase());
+const filteredExpenses = expenses.filter(expense => {
+    const matchesSearch = searchTerm === '' || 
+      expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getFarmName(expense.farmId).toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || expense.category === filterCategory;
-    const matchesFarm = filterFarm === 'all' || expense.farmId === filterFarm;
+    const matchesFarm = filterFarm === 'all' || expense.farmId.toString() === filterFarm;
     return matchesSearch && matchesCategory && matchesFarm;
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
-
   // Calculate summary statistics
   const totalExpenses = filteredExpenses.reduce((total, expense) => total + expense.amount, 0);
   const thisMonthExpenses = expenses.filter(expense => {
@@ -451,7 +449,6 @@ const ExportModal = ({ expenses, farms, onClose, getCategoryConfig, getFarmName 
   const getFilteredExpenses = () => {
     let filtered = [...expenses];
     const now = new Date();
-
 switch (dateRange) {
       case 'thisMonth': {
         filtered = expenses.filter(expense => {
@@ -460,7 +457,7 @@ switch (dateRange) {
         });
         break;
       }
-case 'lastMonth': {
+      case 'lastMonth': {
         const lastMonth = subMonths(now, 1);
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
