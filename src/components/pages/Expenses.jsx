@@ -452,8 +452,8 @@ const ExportModal = ({ expenses, farms, onClose, getCategoryConfig, getFarmName 
     let filtered = [...expenses];
     const now = new Date();
 
-    switch (dateRange) {
-case 'thisMonth': {
+switch (dateRange) {
+      case 'thisMonth': {
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
           return expenseDate >= startOfMonth(now) && expenseDate <= endOfMonth(now);
@@ -484,7 +484,7 @@ case 'thisMonth': {
             return expenseDate >= start && expenseDate <= end;
           });
         }
-break;
+        break;
       }
       default: // 'all'
         break;
