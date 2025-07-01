@@ -1,0 +1,72 @@
+[
+  {
+    "Id": 1,
+    "farmId": 1,
+    "cropId": 1,
+    "title": "Water corn fields",
+    "type": "watering",
+    "dueDate": "2024-12-18",
+    "completed": false,
+    "notes": "Check irrigation system and water for 2 hours"
+  },
+  {
+    "Id": 2,
+    "farmId": 1,
+    "cropId": 2,
+    "title": "Harvest cherry tomatoes",
+    "type": "harvesting",
+    "dueDate": "2024-12-20",
+    "completed": false,
+    "notes": "Pick ripe tomatoes, sort by size"
+  },
+  {
+    "Id": 3,
+    "farmId": 2,
+    "cropId": 3,
+    "title": "Fertilize wheat field",
+    "type": "fertilizing",
+    "dueDate": "2024-12-15",
+    "completed": true,
+    "notes": "Applied nitrogen fertilizer as scheduled"
+  },
+  {
+    "Id": 4,
+    "farmId": 2,
+    "cropId": 4,
+    "title": "Inspect soybean growth",
+    "type": "inspection",
+    "dueDate": "2024-12-19",
+    "completed": false,
+    "notes": "Check for pests and disease signs"
+  },
+  {
+    "Id": 5,
+    "farmId": 3,
+    "cropId": 5,
+    "title": "Weed lettuce beds",
+    "type": "weeding",
+    "dueDate": "2024-12-17",
+    "completed": false,
+    "notes": "Remove weeds between rows manually"
+  },
+  {
+    "Id": 6,
+    "farmId": 1,
+    "cropId": null,
+    "title": "Repair irrigation pump",
+    "type": "maintenance",
+    "dueDate": "2024-12-16",
+    "completed": false,
+    "notes": "Pump making unusual noise, needs inspection"
+  },
+  {
+    "Id": 7,
+    "farmId": 3,
+    "cropId": 6,
+    "title": "Final carrot harvest",
+    "type": "harvesting",
+    "dueDate": "2024-12-14",
+    "completed": true,
+    "notes": "Completed harvest, 500 lbs total yield"
+  }
+]

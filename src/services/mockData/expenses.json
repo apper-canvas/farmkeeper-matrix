@@ -1,0 +1,98 @@
+[
+  {
+    "Id": 1,
+    "farmId": 1,
+    "category": "seeds",
+    "amount": 250,
+    "description": "Sweet corn seeds for spring planting",
+    "date": "2024-04-10"
+  },
+  {
+    "Id": 2,
+    "farmId": 1,
+    "category": "fertilizer",
+    "amount": 450,
+    "description": "Organic fertilizer for tomato crops",
+    "date": "2024-05-15"
+  },
+  {
+    "Id": 3,
+    "farmId": 2,
+    "category": "equipment",
+    "amount": 1200,
+    "description": "New irrigation sprinkler system",
+    "date": "2024-06-01"
+  },
+  {
+    "Id": 4,
+    "farmId": 2,
+    "category": "fuel",
+    "amount": 180,
+    "description": "Diesel fuel for tractor",
+    "date": "2024-06-15"
+  },
+  {
+    "Id": 5,
+    "farmId": 3,
+    "category": "labor",
+    "amount": 800,
+    "description": "Seasonal workers for harvest",
+    "date": "2024-07-20"
+  },
+  {
+    "Id": 6,
+    "farmId": 1,
+    "category": "maintenance",
+    "amount": 350,
+    "description": "Tractor maintenance and oil change",
+    "date": "2024-08-05"
+  },
+  {
+    "Id": 7,
+    "farmId": 3,
+    "category": "utilities",
+    "amount": 275,
+    "description": "Electricity for greenhouse operations",
+    "date": "2024-08-31"
+  },
+  {
+    "Id": 8,
+    "farmId": 2,
+    "category": "seeds",
+    "amount": 320,
+    "description": "Wheat seeds for fall planting",
+    "date": "2024-09-10"
+  },
+  {
+    "Id": 9,
+    "farmId": 1,
+    "category": "other",
+    "amount": 150,
+    "description": "Soil testing and analysis",
+    "date": "2024-10-15"
+  },
+  {
+    "Id": 10,
+    "farmId": 3,
+    "category": "equipment",
+    "amount": 95,
+    "description": "Hand tools and garden supplies",
+    "date": "2024-11-20"
+  },
+  {
+    "Id": 11,
+    "farmId": 1,
+    "category": "fertilizer",
+    "amount": 380,
+    "description": "Winter fertilizer application",
+    "date": "2024-12-01"
+  },
+  {
+    "Id": 12,
+    "farmId": 2,
+    "category": "fuel",
+    "amount": 220,
+    "description": "Gasoline for equipment",
+    "date": "2024-12-10"
+  }
+]

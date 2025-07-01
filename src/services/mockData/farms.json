@@ -1,0 +1,26 @@
+[
+  {
+    "Id": 1,
+    "name": "Green Valley Farm",
+    "location": "Sacramento Valley, CA",
+    "size": 150,
+    "sizeUnit": "acres",
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "Id": 2,
+    "name": "Sunset Acres",
+    "location": "Fresno County, CA",
+    "size": 75,
+    "sizeUnit": "acres",
+    "createdAt": "2024-02-20T14:15:00Z"
+  },
+  {
+    "Id": 3,
+    "name": "Mountain View Ranch",
+    "location": "Sonoma County, CA",
+    "size": 200,
+    "sizeUnit": "acres",
+    "createdAt": "2024-03-10T09:45:00Z"
+  }
+]
