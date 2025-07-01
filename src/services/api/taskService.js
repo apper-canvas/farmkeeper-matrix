@@ -1,4 +1,5 @@
 import mockTasks from '@/services/mockData/tasks.json';
+import { isToday, isTomorrow, addDays, isBefore, isPast } from 'date-fns';
 
 let tasks = [...mockTasks];
 
@@ -44,5 +45,30 @@ export const taskService = {
     
     tasks.splice(index, 1);
     return true;
+  },
+
+  async getUpcomingTasks() {
+    await delay(200);
+    const now = new Date();
+    const threeDaysFromNow = addDays(now, 3);
+    
+    return tasks.filter(task => {
+      if (task.completed) return false;
+      
+      const dueDate = new Date(task.dueDate);
+      
+      // Include tasks that are:
+      // 1. Overdue
+      // 2. Due today
+      // 3. Due tomorrow
+      // 4. Due within next 3 days
+      return isPast(dueDate) || 
+             isToday(dueDate) || 
+             isTomorrow(dueDate) || 
+             (dueDate <= threeDaysFromNow && dueDate >= now);
+    }).sort((a, b) => {
+      // Sort by due date, earliest first
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    });
   }
 };
