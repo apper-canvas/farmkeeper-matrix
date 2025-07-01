@@ -460,7 +460,7 @@ switch (dateRange) {
         });
         break;
       }
-      case 'lastMonth': {
+case 'lastMonth': {
         const lastMonth = subMonths(now, 1);
         filtered = expenses.filter(expense => {
           const expenseDate = new Date(expense.date);
